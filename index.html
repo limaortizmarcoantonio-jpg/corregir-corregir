@@ -101,19 +101,10 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .cuaderno-outer{margin-top:10px}
 .cuaderno-scroll-top{overflow-x:auto;overflow-y:hidden;height:14px;margin-bottom:1px;border-radius:4px}
 .cuaderno-scroll-top-inner{height:1px;background:transparent}
-.cuaderno-wrap{overflow:auto;max-height:70vh;-webkit-overflow-scrolling:touch}
-@media (max-width:1024px){
-  .cuaderno-wrap{max-height:calc(100vh - 120px)}
-}
+.cuaderno-wrap{overflow:auto;max-height:70vh}
 .cuaderno{border-collapse:collapse;font-size:.78rem}
 /* Encabezados sticky horizontalmente */
 .cuaderno th{background:var(--az);color:#fff;padding:7px 6px;text-align:center;font-family:'Baloo 2',cursive;font-weight:600;white-space:nowrap;border:1px solid rgba(255,255,255,.2);position:sticky;top:0;z-index:2}
-/* Tablet: encabezados sticky debajo del nav */
-@media (max-width: 1024px) {
-  .cuaderno th { top: 0; }
-  .cuaderno-wrap { overflow: auto; max-height: calc(100vh - 60px); }
-  .cuaderno th.th-n, .cuaderno th.th-nom, .cuaderno th.th-tot { top: 0; }
-}
 .cuaderno th.th-n{width:28px;min-width:28px;font-size:.72rem;position:sticky;left:0;z-index:4;background:var(--az)}
 .cuaderno th.th-nom{text-align:left;min-width:175px;position:sticky;left:28px;z-index:4;background:var(--az);box-shadow:4px 0 8px rgba(0,0,0,.15)}
 .cuaderno th.th-act{min-width:46px;max-width:56px;font-size:.68rem;word-break:break-word;white-space:normal;line-height:1.2;padding:5px 3px}
@@ -241,12 +232,11 @@ table.reg tr:hover td{background:#e3f2fd}
   /* Cuando se imprime normalmente ocultar todo y mostrar solo _print_wrap */
   body[data-printing="1"] > *:not(#_print_wrap){display:none!important}
   #_print_wrap{display:block!important}
-  /* Secciones del panel: ocultas por defecto, visibles cuando están activas */
+  /* Fallback: mostrar sec-bol si no hay _print_wrap */
   body:not([data-printing="1"]) .sec{display:none!important}
-  #menu-panel.abierto .sec{display:block!important}
-  /* Boleta subsecciones: solo muestra la activa */
-  .bol-section{display:none!important}
-  .bol-section.activo{display:block!important}
+  body:not([data-printing="1"]) #sec-bol{display:block!important}
+  body:not([data-printing="1"]) .bol-section{display:none!important}
+  body:not([data-printing="1"]) .bol-section.activo{display:block!important}
   .card.no-print{display:none!important}
   .card{box-shadow:none!important;margin-bottom:0!important;border-radius:0!important;padding:0!important;border:none!important}
   body{background:#fff!important}
@@ -580,9 +570,6 @@ table.datos th{padding:8px; color:#fff; background:var(--azul-noche); border: 1p
 /* ── Encabezados fijos al hacer scroll vertical ── */
 table.datos thead { position: sticky; top: 0; z-index: 10; }
 table.datos thead th { position: sticky; top: 0; background: var(--azul-noche); }
-@media (max-width: 1024px) {
-  table.datos thead th { top: 0; }
-}
 
 /* ── Columna # fija al hacer scroll horizontal ── */
 table.datos th:nth-child(1),
@@ -1496,7 +1483,7 @@ table.bnotas tr:nth-child(even) td, table.bval tr:nth-child(even) td {
   <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
     <button class="menu-btn mb-bol" style="min-height:50px;padding:10px 24px;flex-direction:row;gap:10px;font-size:.95rem" onclick="mostrarBoleta('boleta')">📋 Boleta Individual</button>
     <button class="menu-btn mb-bol" style="min-height:50px;padding:10px 24px;flex-direction:row;gap:10px;font-size:.95rem" onclick="mostrarBoleta('imprimir')">🖨️ Impresión Masiva</button>
-    <button class="menu-btn" style="background:linear-gradient(145deg,#f57f17,#f9a825);min-height:50px;padding:10px 24px;flex-direction:row;gap:10px;font-size:.95rem" onclick="mostrarBoleta('honor')">🏆 Cuadro de Honor</button>
+    <button class="menu-btn" style="background:linear-gradient(145deg,#f57f17,#f9a825);min-height:50px;padding:10px 24px;flex-direction:row;gap:10px;font-size:.95rem" onclick="abrirPanel('bol', document.querySelector('.mb-bol'));setTimeout(()=>{mostrarBoleta('honor');},200)">🏆 Cuadro de Honor</button>
   </div>
   <div class="boleta-wrap" id="boleta-wrap-inner">
     <div class="bol-section" id="sec-boleta">
@@ -1523,17 +1510,18 @@ table.bnotas tr:nth-child(even) td, table.bval tr:nth-child(even) td {
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
       <div>
         <h2 style="font-family:'Cinzel',serif;color:var(--azul-noche);margin:0 0 4px 0;font-size:18px;">🏆 Cuadro de Honor</h2>
-        <p style="margin:0;font-size:12px;color:#666;">Selecciona un bimestre para ver los primeros lugares.</p>
+        <p style="margin:0;font-size:12px;color:#666;">Grado, sección y lugares se obtienen automáticamente del sistema.</p>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <button onclick="selHonorBim(this,'0')" class="honor-bim-btn" style="padding:8px 14px;background:#1565c0;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">B1</button>
-        <button onclick="selHonorBim(this,'1')" class="honor-bim-btn" style="padding:8px 14px;background:#1565c0;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">B2</button>
-        <button onclick="selHonorBim(this,'2')" class="honor-bim-btn" style="padding:8px 14px;background:#1565c0;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">B3</button>
-        <button onclick="selHonorBim(this,'3')" class="honor-bim-btn" style="padding:8px 14px;background:#1565c0;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">B4</button>
-        <button onclick="selHonorBim(this,'acum')" class="honor-bim-btn" style="padding:8px 14px;background:#6a1b9a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">General</button>
-        <input type="hidden" id="honor-unidad" value="0">
-        <button onclick="imprimirCuadroHonor()" style="padding:8px 18px;background:var(--azul-noche);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;margin-left:8px;">🖨 Imprimir</button>
-        <button onclick="diagnosticarHonor()" style="padding:8px 14px;background:#e65100;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;">🔍 Diagnóstico</button>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label style="font-size:12px;font-weight:700;">Bimestre:</label>
+        <select id="honor-unidad" onchange="renderCuadroHonor()" style="padding:6px 12px;border-radius:6px;border:1px solid #ccc;font-weight:700;">
+          <option value="0">Primer Bimestre</option>
+          <option value="1">Segundo Bimestre</option>
+          <option value="2">Tercer Bimestre</option>
+          <option value="3">Cuarto Bimestre</option>
+          <option value="acum">Promedio General</option>
+        </select>
+        <button onclick="imprimirCuadroHonor()" style="padding:8px 18px;background:var(--azul-noche);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">🖨 Imprimir</button>
       </div>
     </div>
   </div>
@@ -4791,9 +4779,9 @@ function mostrarAl(sec,msg,tipo){
 // BOLETA INTEGRADA
 // ═══════════════════════════════════════════════
 function mostrarBoleta(sec){
-  document.querySelectorAll('.bol-section').forEach(s=>{s.style.display='';s.classList.remove('activo');});
+  document.querySelectorAll('.bol-section').forEach(s=>{s.style.display='none';s.classList.remove('activo');});
   const el = document.getElementById('sec-'+sec);
-  if(el){el.style.display='';el.classList.add('activo');}
+  if(el){el.style.display='block';el.classList.add('activo');}
 
   // Sync boleta students with current Firebase data before showing
   sincronizarBoletaConRegistro();
@@ -4811,19 +4799,11 @@ function mostrarBoleta(sec){
   }
   if(sec==='honor'){
     setTimeout(()=>{
-      // Autoseleccionar bimestre activo
-      const bimMap = {B1:'0',B2:'1',B3:'2',B4:'3'};
-      const defaultVal = bimMap[bimestreActivo] || '0';
-      const inp = document.getElementById('honor-unidad');
-      if(inp) inp.value = defaultVal;
-      const btns = document.querySelectorAll('.honor-bim-btn');
-      const bimNames = ['0','1','2','3','acum'];
-      btns.forEach((b,i)=>{
-        if(bimNames[i]===defaultVal){ b.style.opacity='1'; b.style.transform='scale(1.08)'; b.style.boxShadow='0 2px 8px rgba(0,0,0,0.3)'; }
-        else { b.style.opacity='0.5'; b.style.transform='scale(1)'; b.style.boxShadow=''; }
-      });
-      renderCuadroHonor();
-    }, 300);
+      const prev = document.getElementById('honor-preview');
+      if(prev) prev.innerHTML='';
+      if(typeof renderCuadroHonor === 'function') renderCuadroHonor();
+      else prev.innerHTML='<div style="padding:20px;color:#aaa;text-align:center">Cargando...</div>';
+    }, 500);
   }
 }
 
@@ -5479,76 +5459,6 @@ function calcPromedioUnidad(s, u){
   return count > 0 ? (sum / count).toFixed(1) : '0.0';
 }
 
-
-function diagnosticarHonor(){
-  const bimId = ['B1','B2','B3','B4'][parseInt(document.getElementById('honor-unidad').value)] || document.getElementById('honor-unidad').value;
-  const raw = localStorage.getItem('cuadernos_' + bimId);
-  const prom = localStorage.getItem('promedios_bim');
-  
-  let html = '<div style="background:#fff;padding:20px;border-radius:8px;font-family:monospace;font-size:12px;text-align:left;max-height:400px;overflow-y:auto;">';
-  html += '<b>DIAGNÓSTICO - ' + bimId + '</b><br><br>';
-  html += '<b>bimestreActivo:</b> ' + bimestreActivo + '<br>';
-  html += '<b>ALUMNOS:</b> ' + ALUMNOS.length + ' alumnos<br>';
-  html += '<b>MATERIAS:</b> ' + MATERIAS.length + ' materias<br><br>';
-  
-  html += '<b>promedios_bim en localStorage:</b><br>';
-  if(prom){
-    const p = JSON.parse(prom);
-    const bimData = p[bimId];
-    if(bimData){
-      html += 'Encontrado para ' + bimId + ':<br>';
-      Object.entries(bimData).slice(0,5).forEach(([k,v])=>{ html += '&nbsp;&nbsp;alumno ' + k + ': ' + v + '<br>'; });
-    } else {
-      html += 'NO hay datos para ' + bimId + ' en promedios_bim<br>';
-      html += 'Bimestres con datos: ' + Object.keys(p).join(', ') + '<br>';
-    }
-  } else {
-    html += 'promedios_bim NO existe en localStorage<br>';
-  }
-  
-  html += '<br><b>cuadernos_' + bimId + ' en localStorage:</b><br>';
-  if(raw){
-    const c = JSON.parse(raw);
-    const mats = Object.keys(c);
-    html += 'Materias encontradas: ' + mats.slice(0,4).join(', ') + '<br>';
-    if(mats.length > 0){
-      const mat0 = c[mats[0]];
-      html += 'Primera materia (' + mats[0] + '):<br>';
-      html += '&nbsp;&nbsp;actividades: ' + (mat0.actividades||[]).length + '<br>';
-      const notasKeys = Object.keys(mat0.notas||{}).slice(0,3);
-      html += '&nbsp;&nbsp;notas (muestra): ' + JSON.stringify(notasKeys) + '<br>';
-      if(notasKeys.length > 0) html += '&nbsp;&nbsp;valor[0]: ' + mat0.notas[notasKeys[0]] + '<br>';
-    }
-  } else {
-    html += 'NO existe cuadernos_' + bimId + ' en localStorage<br>';
-  }
-  
-  html += '<br><b>_promediosGuardados en memoria:</b><br>';
-  if(_promediosGuardados && _promediosGuardados[bimId]){
-    const entries = Object.entries(_promediosGuardados[bimId]).slice(0,5);
-    entries.forEach(([k,v])=>{ html += '&nbsp;&nbsp;' + k + ': ' + v + '<br>'; });
-  } else {
-    html += 'No hay datos en memoria para ' + bimId + '<br>';
-  }
-  
-  html += '</div>';
-  document.getElementById('honor-preview').innerHTML = html;
-}
-
-} // end _renderHonorConDatos
-
-function selHonorBim(btn, val){
-  document.getElementById('honor-unidad').value = val;
-  document.querySelectorAll('.honor-bim-btn').forEach(b=>{
-    b.style.opacity = '0.5';
-    b.style.transform = 'scale(1)';
-  });
-  btn.style.opacity = '1';
-  btn.style.transform = 'scale(1.08)';
-  btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
-  renderCuadroHonor();
-}
-
 function renderCuadroHonor(){
   const sel = document.getElementById('honor-unidad').value;
 
@@ -5558,48 +5468,27 @@ function renderCuadroHonor(){
   const unidadLabels = ['PRIMER BIMESTRE','SEGUNDO BIMESTRE','TERCER BIMESTRE','CUARTO BIMESTRE','PROMEDIO GENERAL'];
   const unidadLabel  = sel === 'acum' ? unidadLabels[4] : unidadLabels[parseInt(sel)];
 
-  // Calcular promedios — igual que el Ranking
-  const bimId = sel === 'acum' ? null : ['B1','B2','B3','B4'][parseInt(sel)];
+  // Calcular promedios de cada alumno
   let conProm = [];
-
-  if(bimId === bimestreActivo || sel === 'acum'){
-    // Bimestre activo o general: usar datos en memoria (igual que Ranking)
-    if(sel === 'acum'){
-      conProm = ALUMNOS.map(a => ({ nombre: a.n, prom: getPromedioGeneral(a.id)||0 }));
-    } else {
-      conProm = ALUMNOS.map(a => ({ nombre: a.n, prom: getPromedioAlumno(a.id)||0 }));
-    }
+  if(sel === 'acum'){
+    // Promedio general inter-bimestral
+    conProm = ALUMNOS.map(a=>({ nombre: a.n, prom: getPromedioGeneral(a.id)||0 }));
   } else {
-    // Otro bimestre: descargar de Firebase en tiempo real
-    const prev2 = document.getElementById('honor-preview');
-    if(prev2) prev2.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center">⏳ Cargando bimestre...</div>';
-    db.ref('cuadernos_' + bimId).once('value').then(snap => {
-      const c = snap.val() || {};
-      const lista = ALUMNOS.map(a => {
-        let suma = 0, con = 0;
-        MATERIAS.forEach(mat => {
-          const datos = c[mat] || {actividades:[], notas:{}};
-          (datos.actividades||[]).forEach((_,i) => {
-            const v = getNota((datos.notas||{})[a.id+'_'+i]);
-            if(v !== null && !isNaN(v)){ suma += v; con++; }
-          });
-        });
-        return { nombre: a.n, prom: con > 0 ? Math.round(suma/con) : 0 };
-      }).filter(s => s.prom > 0).sort((a,b) => b.prom - a.prom);
-      _renderHonorConDatos(lista, unidadLabel);
-    }).catch(e => {
-      document.getElementById('honor-preview').innerHTML =
-        '<div style="padding:20px;color:#e74c3c;text-align:center">Error al cargar datos de Firebase.</div>';
-    });
-    return; // salir — el render lo hace el callback
+    const bimId = ['B1','B2','B3','B4'][parseInt(sel)];
+    if(bimId === bimestreActivo){
+      // Bimestre activo — usar datos en memoria
+      conProm = ALUMNOS.map(a=>({ nombre: a.n, prom: getPromedioAlumno(a.id)||0 }));
+    } else {
+      // Otro bimestre — usar promedios guardados
+      conProm = ALUMNOS.map(a=>({
+        nombre: a.n,
+        prom: _promediosGuardados?.[bimId]?.[a.id] || 0
+      }));
+    }
   }
 
   // Solo alumnos con promedio > 0, ordenados de mayor a menor
   conProm = conProm.filter(s=>s.prom>0).sort((a,b)=>b.prom-a.prom);
-  _renderHonorConDatos(conProm, unidadLabel);
-}
-
-function _renderHonorConDatos(conProm, unidadLabel){
 
   const grado   = '5to';
   const seccion = 'A';
@@ -5611,7 +5500,7 @@ function _renderHonorConDatos(conProm, unidadLabel){
 
   if(conProm.length === 0){
     document.getElementById('honor-preview').innerHTML =
-      '<div style="padding:20px;color:#aaa;text-align:center">No hay datos para mostrar en este bimestre todavía.<br><small style="color:#bbb">Asegúrate de haber guardado los promedios desde el Cuaderno de Registro.</small></div>';
+      '<div style="padding:20px;color:#aaa;text-align:center">No hay datos para mostrar en este bimestre todavía.</div>';
     return;
   }
 
