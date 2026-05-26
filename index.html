@@ -98,7 +98,7 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .mat-btn.sel{background:var(--az);color:#fff;border-color:var(--az)}
 
 /* Tabla cuaderno - estilo registro */
-.cuaderno-outer{margin-top:6px}
+.cuaderno-outer{margin-top:6px;width:100%;overflow-x:auto}
 .cuaderno-scroll-top{overflow-x:auto;overflow-y:hidden;height:10px;margin-bottom:2px;border-radius:4px;background:#e0e0e0}
 .cuaderno-scroll-top-inner{height:1px;background:transparent}
 /* En tablet, la barra siempre visible con estilo */
@@ -108,16 +108,24 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
   .cuaderno-scroll-top::-webkit-scrollbar-track{background:#e3f2fd;border-radius:6px}
   .cuaderno-scroll-top::-webkit-scrollbar-thumb{background:#1565c0;border-radius:6px}
 }
-.cuaderno-wrap{overflow:auto;max-height:500px;height:500px;-webkit-overflow-scrolling:touch}
+.cuaderno-wrap{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
 @media(max-width:1024px){
   .cuaderno-wrap{
-    max-height:420px;
-    height:420px;
-    overflow:auto;
+    overflow-x:auto;
+    overflow-y:visible;
+    /* SIN altura fija: el teclado virtual ya NO aplasta la tabla */
   }
-  .cuaderno thead{position:sticky;top:0;z-index:5}
-  .cuaderno th{position:sticky;top:0;z-index:3}
-  .cuaderno th.th-n,.cuaderno th.th-nom,.cuaderno th.th-tot{z-index:6}
+  /* En tablet/móvil sin scroll vertical en wrap, quitamos sticky del thead
+     para evitar bugs de posicionamiento */
+  .cuaderno thead{position:relative;top:auto;z-index:2}
+  .cuaderno th{position:relative;top:auto}
+  /* Pero mantenemos sticky horizontal para # y Nombre */
+  .cuaderno th.th-n{position:sticky;left:0;z-index:4}
+  .cuaderno th.th-nom{position:sticky;left:28px;z-index:4}
+  .cuaderno th.th-tot{position:sticky;right:0;z-index:4}
+  .cuaderno td.td-n{position:sticky;left:0;z-index:1}
+  .cuaderno td.td-nom{position:sticky;left:28px;z-index:1}
+  .cuaderno td.td-tot{position:sticky;right:0;z-index:1}
 }
 .cuaderno{border-collapse:collapse;font-size:.78rem}
 /* Encabezados sticky horizontalmente */
@@ -146,7 +154,7 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 
 /* ── MÓVIL: tabla cuaderno ── */
 @media(max-width:600px){
-  .cuaderno-wrap{max-height:320px;height:320px;overflow:auto}
+  .cuaderno-wrap{overflow-x:auto;overflow-y:visible}
   .cuaderno th.th-nom{min-width:110px;max-width:120px;font-size:.65rem}
   .cuaderno td.td-nom{min-width:110px;max-width:120px;font-size:.68rem}
   .cuaderno th.th-n{width:22px;min-width:22px}
@@ -5862,94 +5870,17 @@ showSection = function(n, btn){
 
 <script>
 /* ══════════════════════════════════════════════════════
-   CORRECCIÓN TECLADO VIRTUAL EN TABLET / MÓVIL
-   Usa visualViewport para saber cuánto sube el teclado
-   y ajusta la altura del cuaderno dinámicamente.
+   SCROLL AL INPUT EN TABLET/MÓVIL
+   Sin alturas fijas — la página scrollea normalmente.
+   Solo centramos el input enfocado en pantalla.
 ══════════════════════════════════════════════════════ */
-(function(){
-  var wrap = null;
-  var baseHeight = 420; // px base para tablet
-
-  function getWrap(){
-    if(!wrap) wrap = document.getElementById('tabla-cuad');
-    return wrap;
-  }
-
-  // ── 1. Ajuste de altura con visualViewport ──
-  function ajustarAltura(){
-    var w = getWrap();
-    if(!w) return;
-    var vvh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    // Espacio disponible: viewport visual menos lo que ocupa la página arriba del wrap
-    var rect = w.getBoundingClientRect();
-    var offsetTop = rect.top; // distancia del wrap al tope visible
-    // Dejar al menos 40px de margen abajo para los botones Guardar/Exportar
-    var disponible = vvh - offsetTop - 56;
-    // Mínimo 150px, máximo baseHeight
-    var nueva = Math.max(150, Math.min(baseHeight, disponible));
-    w.style.height = nueva + 'px';
-    w.style.maxHeight = nueva + 'px';
-  }
-
-  // ── 2. Scroll automático al input enfocado ──
-  function scrollAlInput(inp){
-    var w = getWrap();
-    if(!w || !inp) return;
-
-    // Vertical: asegurar que la fila sea visible dentro del wrap
-    var tr = inp.closest('tr');
-    if(tr){
-      var wTop = w.getBoundingClientRect().top;
-      var tTop = tr.getBoundingClientRect().top;
-      w.scrollTop += tTop - wTop - 8;
-    }
-
-    // Horizontal: centrar el input dentro del wrap
-    var center = inp.offsetLeft - (w.clientWidth / 2) + (inp.offsetWidth / 2);
-    w.scrollLeft = Math.max(0, center);
-
-    // Llevar el wrap a la vista de la página
-    setTimeout(function(){
-      w.scrollIntoView({behavior:'smooth', block:'nearest'});
-    }, 50);
-  }
-
-  // ── 3. Eventos ──
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', function(){
-      ajustarAltura();
-    });
-    window.visualViewport.addEventListener('scroll', function(){
-      ajustarAltura();
-    });
-  }
-
-  document.addEventListener('focusin', function(e){
-    if(!e.target.classList.contains('ninp')) return;
-    // Ajuste inmediato y luego tras esperar al teclado
-    ajustarAltura();
-    setTimeout(function(){
-      ajustarAltura();
-      scrollAlInput(e.target);
-    }, 400);
-  });
-
-  document.addEventListener('focusout', function(e){
-    if(!e.target.classList.contains('ninp')) return;
-    // Al cerrar el teclado, restaurar altura base
-    setTimeout(function(){
-      var w = getWrap();
-      if(w){
-        w.style.height = baseHeight + 'px';
-        w.style.maxHeight = baseHeight + 'px';
-      }
-    }, 300);
-  });
-
-  // Ajuste inicial al cargar
-  window.addEventListener('load', function(){ ajustarAltura(); });
-  window.addEventListener('resize', function(){ ajustarAltura(); });
-})();
+document.addEventListener('focusin', function(e){
+  if(!e.target.classList.contains('ninp')) return;
+  // Esperar a que el teclado virtual termine de subir
+  setTimeout(function(){
+    e.target.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+  }, 400);
+});
 </script>
 </body>
 </html>
