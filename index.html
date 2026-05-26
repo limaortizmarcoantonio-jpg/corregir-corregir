@@ -146,13 +146,13 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 
 /* ── MÓVIL: tabla cuaderno ── */
 @media(max-width:600px){
-  .cuaderno-wrap{max-height:55vh;height:55vh}
+  .cuaderno-wrap{max-height:320px;height:320px;overflow:auto}
   .cuaderno th.th-nom{min-width:110px;max-width:120px;font-size:.65rem}
   .cuaderno td.td-nom{min-width:110px;max-width:120px;font-size:.68rem}
   .cuaderno th.th-n{width:22px;min-width:22px}
   .cuaderno td.td-n{width:22px}
   .cuaderno th.th-act{min-width:40px;max-width:48px;font-size:.60rem;padding:4px 2px}
-  .ninp{width:34px;height:26px;font-size:.72rem}
+  .ninp{width:34px;height:26px;font-size:16px}
   .cuaderno{font-size:.72rem}
   .cuaderno td.td-nom,.cuaderno th.th-nom{left:22px}
   .cuaderno td.td-n,.cuaderno th.th-n{left:0}
@@ -5861,3 +5861,36 @@ showSection = function(n, btn){
 </div>
 </body>
 </html>
+<script>
+// ── Scroll automático al enfocar un input de nota en móvil ──
+document.addEventListener('focusin', function(e){
+  if(!e.target.classList.contains('ninp')) return;
+  if(window.innerWidth > 768) return; // solo móvil
+
+  // Espera a que el teclado virtual suba (aprox 350ms)
+  setTimeout(function(){
+    const wrap = document.getElementById('tabla-cuad');
+    const inp = e.target;
+    if(!wrap || !inp) return;
+
+    // Scroll vertical: lleva la fila al tope del contenedor
+    const tr = inp.closest('tr');
+    if(tr){
+      const wrapRect = wrap.getBoundingClientRect();
+      const trRect   = tr.getBoundingClientRect();
+      // Scroll para que la fila quede visible dentro del wrap
+      wrap.scrollTop += trRect.top - wrapRect.top - 8;
+    }
+
+    // Scroll horizontal: lleva el input al centro visible
+    const inpRect  = inp.getBoundingClientRect();
+    const wrapRect2 = wrap.getBoundingClientRect();
+    const offsetLeft = inp.offsetLeft - wrap.offsetLeft;
+    const center = offsetLeft - (wrap.clientWidth / 2) + (inp.offsetWidth / 2);
+    wrap.scrollLeft = Math.max(0, center);
+
+    // Scroll de página: lleva el wrap entero a la vista
+    wrap.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 380);
+});
+</script>
