@@ -98,7 +98,7 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .mat-btn.sel{background:var(--az);color:#fff;border-color:var(--az)}
 
 /* Tabla cuaderno - estilo registro */
-.cuaderno-outer{margin-top:10px}
+.cuaderno-outer{margin-top:6px}
 .cuaderno-scroll-top{overflow-x:auto;overflow-y:hidden;height:10px;margin-bottom:2px;border-radius:4px;background:#e0e0e0}
 .cuaderno-scroll-top-inner{height:1px;background:transparent}
 /* En tablet, la barra siempre visible con estilo */
@@ -108,8 +108,18 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
   .cuaderno-scroll-top::-webkit-scrollbar-track{background:#e3f2fd;border-radius:6px}
   .cuaderno-scroll-top::-webkit-scrollbar-thumb{background:#1565c0;border-radius:6px}
 }
-.cuaderno-wrap{overflow:auto;max-height:70vh;-webkit-overflow-scrolling:touch}
-@media(max-width:1024px){.cuaderno-wrap{max-height:calc(100vh - 130px)}}
+.cuaderno-wrap{overflow:auto;max-height:75vh;height:75vh;-webkit-overflow-scrolling:touch}
+@media(max-width:1024px){
+  .cuaderno-wrap{
+    max-height:calc(100vh - 180px);
+    height:calc(100vh - 180px);
+    overflow:auto;
+  }
+  /* Asegurar que el thead sticky funcione dentro del wrap */
+  .cuaderno thead{position:sticky;top:0;z-index:5}
+  .cuaderno th{position:sticky;top:0;z-index:3}
+  .cuaderno th.th-n,.cuaderno th.th-nom,.cuaderno th.th-tot{z-index:6}
+}
 .cuaderno{border-collapse:collapse;font-size:.78rem}
 /* Encabezados sticky horizontalmente */
 .cuaderno th{background:var(--az);color:#fff;padding:7px 6px;text-align:center;font-family:'Baloo 2',cursive;font-weight:600;white-space:nowrap;border:1px solid rgba(255,255,255,.2);position:sticky;top:0;z-index:2}
@@ -136,9 +146,9 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .celda-vacia{color:#ef9a9a;font-size:.85rem}
 
 /* Panel agregar actividad */
-.add-act-panel{background:#e3f2fd;border-radius:10px;padding:12px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.add-act-panel label{font-size:.78rem;font-weight:700;color:var(--az)}
-.add-act-panel input{max-width:180px;padding:7px 10px}
+.add-act-panel{background:#e3f2fd;border-radius:8px;padding:7px 10px;margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.add-act-panel label{font-size:.72rem;font-weight:700;color:var(--az);display:none}
+.add-act-panel input{max-width:200px;padding:5px 8px;font-size:.82rem}
 
 /* ═══ VISTA PADRES ═══ */
 .avatar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px}
@@ -2936,6 +2946,8 @@ function selMat(mat, btn){
   matActual = mat;
   document.getElementById('panel-mat').style.display='block';
   document.getElementById('tit-mat').textContent = '📚 '+mat;
+  document.getElementById('tit-mat').style.fontSize = '.95rem';
+  document.getElementById('tit-mat').style.marginBottom = '4px';
   renderCuaderno(mat);
 }
 
