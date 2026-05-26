@@ -108,11 +108,11 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
   .cuaderno-scroll-top::-webkit-scrollbar-track{background:#e3f2fd;border-radius:6px}
   .cuaderno-scroll-top::-webkit-scrollbar-thumb{background:#1565c0;border-radius:6px}
 }
-.cuaderno-wrap{overflow:auto;max-height:75vh;height:75vh;-webkit-overflow-scrolling:touch}
+.cuaderno-wrap{overflow:auto;max-height:500px;height:500px;-webkit-overflow-scrolling:touch}
 @media(max-width:1024px){
   .cuaderno-wrap{
-    max-height:50vh;
-    height:50vh;
+    max-height:420px;
+    height:420px;
     overflow:auto;
   }
   .cuaderno thead{position:sticky;top:0;z-index:5}
@@ -137,7 +137,7 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .cuaderno tr:hover td,.cuaderno tr:hover td.td-n,.cuaderno tr:hover td.td-nom{background:#e8f5fd}
 
 /* Input dentro de celda */
-.ninp{width:38px;height:28px;padding:2px 1px;border:1.5px solid #dde3ea;border-radius:6px;text-align:center;font-size:.75rem;font-family:'Nunito',sans-serif;background:#fff;transition:border .15s;-moz-appearance:textfield}
+.ninp{width:38px;height:28px;padding:2px 1px;border:1.5px solid #dde3ea;border-radius:6px;text-align:center;font-size:16px;font-family:'Nunito',sans-serif;background:#fff;transition:border .15s;-moz-appearance:textfield}
 .ninp::-webkit-outer-spin-button,.ninp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .ninp:focus{border-color:var(--az2);outline:none;background:#e3f2fd}
 .ninp.vacia{background:#fff3e0;border-color:#ffb74d}
@@ -3021,7 +3021,7 @@ function renderCuaderno(mat){
       html += `<td><input type="number" class="ninp ${cls}" min="0" max="100"
         data-mat="${mat}" data-al="${al.id}" data-act="${i}"
         value="${val}" placeholder="–"
-        oninput="this.className='ninp '+(this.value===''?'vacia':'con-nota')"
+        inputmode="numeric" oninput="this.className='ninp '+(this.value===''?'vacia':'con-nota')"
         onblur="actualizarNota(this)"
         onkeydown="navegarCuaderno(event,this)"></td>`;
     });
@@ -5859,38 +5859,97 @@ showSection = function(n, btn){
     <div class="pdf-progress-bar"><div id="pdf-progress-fill" class="pdf-progress-fill" style="width:0%"></div></div>
   </div>
 </div>
-</body>
-</html>
+
 <script>
-// ── Scroll automático al enfocar un input de nota en móvil ──
-document.addEventListener('focusin', function(e){
-  if(!e.target.classList.contains('ninp')) return;
-  if(window.innerWidth > 768) return; // solo móvil
+/* ══════════════════════════════════════════════════════
+   CORRECCIÓN TECLADO VIRTUAL EN TABLET / MÓVIL
+   Usa visualViewport para saber cuánto sube el teclado
+   y ajusta la altura del cuaderno dinámicamente.
+══════════════════════════════════════════════════════ */
+(function(){
+  var wrap = null;
+  var baseHeight = 420; // px base para tablet
 
-  // Espera a que el teclado virtual suba (aprox 350ms)
-  setTimeout(function(){
-    const wrap = document.getElementById('tabla-cuad');
-    const inp = e.target;
-    if(!wrap || !inp) return;
+  function getWrap(){
+    if(!wrap) wrap = document.getElementById('tabla-cuad');
+    return wrap;
+  }
 
-    // Scroll vertical: lleva la fila al tope del contenedor
-    const tr = inp.closest('tr');
+  // ── 1. Ajuste de altura con visualViewport ──
+  function ajustarAltura(){
+    var w = getWrap();
+    if(!w) return;
+    var vvh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    // Espacio disponible: viewport visual menos lo que ocupa la página arriba del wrap
+    var rect = w.getBoundingClientRect();
+    var offsetTop = rect.top; // distancia del wrap al tope visible
+    // Dejar al menos 40px de margen abajo para los botones Guardar/Exportar
+    var disponible = vvh - offsetTop - 56;
+    // Mínimo 150px, máximo baseHeight
+    var nueva = Math.max(150, Math.min(baseHeight, disponible));
+    w.style.height = nueva + 'px';
+    w.style.maxHeight = nueva + 'px';
+  }
+
+  // ── 2. Scroll automático al input enfocado ──
+  function scrollAlInput(inp){
+    var w = getWrap();
+    if(!w || !inp) return;
+
+    // Vertical: asegurar que la fila sea visible dentro del wrap
+    var tr = inp.closest('tr');
     if(tr){
-      const wrapRect = wrap.getBoundingClientRect();
-      const trRect   = tr.getBoundingClientRect();
-      // Scroll para que la fila quede visible dentro del wrap
-      wrap.scrollTop += trRect.top - wrapRect.top - 8;
+      var wTop = w.getBoundingClientRect().top;
+      var tTop = tr.getBoundingClientRect().top;
+      w.scrollTop += tTop - wTop - 8;
     }
 
-    // Scroll horizontal: lleva el input al centro visible
-    const inpRect  = inp.getBoundingClientRect();
-    const wrapRect2 = wrap.getBoundingClientRect();
-    const offsetLeft = inp.offsetLeft - wrap.offsetLeft;
-    const center = offsetLeft - (wrap.clientWidth / 2) + (inp.offsetWidth / 2);
-    wrap.scrollLeft = Math.max(0, center);
+    // Horizontal: centrar el input dentro del wrap
+    var center = inp.offsetLeft - (w.clientWidth / 2) + (inp.offsetWidth / 2);
+    w.scrollLeft = Math.max(0, center);
 
-    // Scroll de página: lleva el wrap entero a la vista
-    wrap.scrollIntoView({behavior:'smooth', block:'nearest'});
-  }, 380);
-});
+    // Llevar el wrap a la vista de la página
+    setTimeout(function(){
+      w.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }, 50);
+  }
+
+  // ── 3. Eventos ──
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){
+      ajustarAltura();
+    });
+    window.visualViewport.addEventListener('scroll', function(){
+      ajustarAltura();
+    });
+  }
+
+  document.addEventListener('focusin', function(e){
+    if(!e.target.classList.contains('ninp')) return;
+    // Ajuste inmediato y luego tras esperar al teclado
+    ajustarAltura();
+    setTimeout(function(){
+      ajustarAltura();
+      scrollAlInput(e.target);
+    }, 400);
+  });
+
+  document.addEventListener('focusout', function(e){
+    if(!e.target.classList.contains('ninp')) return;
+    // Al cerrar el teclado, restaurar altura base
+    setTimeout(function(){
+      var w = getWrap();
+      if(w){
+        w.style.height = baseHeight + 'px';
+        w.style.maxHeight = baseHeight + 'px';
+      }
+    }, 300);
+  });
+
+  // Ajuste inicial al cargar
+  window.addEventListener('load', function(){ ajustarAltura(); });
+  window.addEventListener('resize', function(){ ajustarAltura(); });
+})();
 </script>
+</body>
+</html>
