@@ -1207,21 +1207,6 @@ table.bnotas tr:nth-child(even) td, table.bval tr:nth-child(even) td {
 .pdf-progress-box { background: #fff; padding: 30px 40px; border-radius: 12px; text-align: center; font-family: 'Source Sans 3', sans-serif; }
 .pdf-progress-bar { width: 300px; height: 10px; background: #eee; border-radius: 5px; margin: 10px auto 0; overflow: hidden; }
 .pdf-progress-fill { height: 100%; background: #c0392b; border-radius: 5px; transition: width 0.3s; }
-
-/* ══ PANEL FLOTANTE NOTA TÁCTIL ══ */
-#panel-nota-movil{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:3px solid #1565c0;border-radius:18px 18px 0 0;padding:16px 20px 32px;z-index:99999;box-shadow:0 -6px 30px rgba(0,0,0,.28)}
-#panel-nota-movil .pnm-tit{font-family:'Baloo 2',cursive;font-size:.82rem;color:#1565c0;font-weight:700;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#panel-nota-movil .pnm-alm{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;color:#1a2332;margin-bottom:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#panel-nota-movil .pnm-row{display:flex;align-items:center;gap:10px}
-#pnm-inp{width:88px;height:54px;font-size:1.5rem;font-family:'Baloo 2',cursive;font-weight:800;text-align:center;border:2px solid #1565c0;border-radius:12px;background:#e3f2fd;color:#1565c0;-moz-appearance:textfield}
-#pnm-inp::-webkit-outer-spin-button,#pnm-inp::-webkit-inner-spin-button{-webkit-appearance:none}
-#panel-nota-movil .pnm-ok{flex:1;height:54px;background:#1a7a4a;color:#fff;border:none;border-radius:12px;font-family:'Baloo 2',cursive;font-size:1rem;font-weight:700;cursor:pointer}
-#panel-nota-movil .pnm-x{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#90a4ae;line-height:1}
-#panel-nota-movil .pnm-nav{display:flex;gap:8px;margin-top:10px}
-#panel-nota-movil .pnm-nav button{flex:1;padding:10px;border:1.5px solid #1565c0;background:#fff;color:#1565c0;border-radius:10px;font-family:'Baloo 2',cursive;font-size:.88rem;font-weight:700;cursor:pointer}
-.pnm-celda{display:inline-block;min-width:36px;height:28px;line-height:28px;padding:0 4px;border-radius:6px;text-align:center;font-size:.82rem;cursor:pointer;border:1.5px solid #dde3ea;font-weight:700;background:#fff3e0;color:#e65100}
-.pnm-celda.con-nota{background:#e8f5e9;color:#2e7d32;border-color:#81c784}
-.pnm-celda.activa{border-color:#1565c0 !important;background:#e3f2fd !important;color:#1565c0 !important}
 </style>
 </head>
 <body>
@@ -5860,105 +5845,5 @@ showSection = function(n, btn){
     <div class="pdf-progress-bar"><div id="pdf-progress-fill" class="pdf-progress-fill" style="width:0%"></div></div>
   </div>
 </div>
-
-
-<div id="panel-nota-movil">
-  <button class="pnm-x" onclick="cerrarPNM()">✕</button>
-  <div class="pnm-tit" id="pnm-tit"></div>
-  <div class="pnm-alm" id="pnm-alm"></div>
-  <div class="pnm-row">
-    <input id="pnm-inp" type="number" min="0" max="100" inputmode="numeric" placeholder="–">
-    <button class="pnm-ok" onclick="guardarPNM()">✔ Guardar</button>
-  </div>
-  <div class="pnm-nav">
-    <button onclick="navPNM(-1)">◀ Anterior</button>
-    <button onclick="navPNM(1)">Siguiente ▶</button>
-  </div>
-</div>
-
-<script>
-var _pnmEl = null;
-function esTactil(){ return ('ontouchstart' in window)||navigator.maxTouchPoints>0; }
-
-// Se llama DESPUÉS de renderCuaderno — convierte inputs en celdas tocables
-function patchTouch(){
-  if(!esTactil()) return;
-  document.querySelectorAll('#tabla-cuad .ninp').forEach(function(inp){
-    var span = document.createElement('span');
-    span.className = 'pnm-celda' + (inp.value?' con-nota':'');
-    span.textContent = inp.value||'–';
-    span.dataset.mat = inp.dataset.mat;
-    span.dataset.al  = inp.dataset.al;
-    span.dataset.act = inp.dataset.act;
-    span.dataset.val = inp.value;
-    span.onclick = function(){ abrirPNM(this); };
-    inp.parentNode.replaceChild(span, inp);
-  });
-}
-
-function abrirPNM(el){
-  _pnmEl = el;
-  document.querySelectorAll('.pnm-celda').forEach(function(c){c.classList.remove('activa');});
-  el.classList.add('activa');
-  var al   = ALUMNOS.find(function(a){ return String(a.id)===String(el.dataset.al); });
-  var c    = getCuadernos();
-  var acts = ((c[el.dataset.mat]||{}).actividades)||[];
-  var nomAct = acts[el.dataset.act]?acts[el.dataset.act].nombre:('Act.'+(Number(el.dataset.act)+1));
-  document.getElementById('pnm-tit').textContent = '📝 '+nomAct;
-  document.getElementById('pnm-alm').textContent = '👤 '+(al?al.n:el.dataset.al);
-  document.getElementById('pnm-inp').value = el.dataset.val||'';
-  document.getElementById('panel-nota-movil').style.display='block';
-  setTimeout(function(){ document.getElementById('pnm-inp').focus(); },60);
-}
-
-function cerrarPNM(){
-  document.getElementById('panel-nota-movil').style.display='none';
-  if(_pnmEl){_pnmEl.classList.remove('activa'); _pnmEl=null;}
-}
-
-function guardarPNM(){
-  if(!_pnmEl) return;
-  var val=document.getElementById('pnm-inp').value.trim();
-  var mat=_pnmEl.dataset.mat, alId=_pnmEl.dataset.al, actI=_pnmEl.dataset.act;
-  var c=getCuadernos();
-  if(!c[mat]) c[mat]={actividades:[],notas:{}};
-  var key=alId+'_'+actI;
-  if(val===''){c[mat].notas[key]=null;}
-  else{var hoy=new Date();var fd=String(hoy.getDate()).padStart(2,'0')+'/'+String(hoy.getMonth()+1).padStart(2,'0')+'/'+hoy.getFullYear();c[mat].notas[key]={nota:Number(val),fecha:fd};}
-  setCuadernos(c);
-  _pnmEl.textContent=val||'–'; _pnmEl.dataset.val=val;
-  _pnmEl.className='pnm-celda'+(val?' con-nota':'');
-  var fila=_pnmEl.closest('tr');
-  if(fila){var tot=0,con=0;fila.querySelectorAll('.pnm-celda').forEach(function(s){if(s.dataset.val){tot+=Number(s.dataset.val);con++;}});var tdT=fila.querySelector('.td-tot');if(tdT)tdT.textContent=con>0?tot:'–';}
-  renderRanking();
-  // Avanzar al siguiente alumno
-  var actIs=Array.from(document.querySelectorAll('.pnm-celda[data-act="'+actI+'"]'));
-  var idx=actIs.indexOf(_pnmEl);
-  _pnmEl.classList.remove('activa'); _pnmEl=null;
-  if(actIs[idx+1]){abrirPNM(actIs[idx+1]);actIs[idx+1].scrollIntoView({behavior:'smooth',block:'nearest'});}
-  else{cerrarPNM();}
-}
-
-function navPNM(dir){
-  if(!_pnmEl) return;
-  var actI=_pnmEl.dataset.act;
-  var celdas=Array.from(document.querySelectorAll('.pnm-celda[data-act="'+actI+'"]'));
-  var sig=celdas[celdas.indexOf(_pnmEl)+dir];
-  if(sig){abrirPNM(sig);sig.scrollIntoView({behavior:'smooth',block:'nearest'});}
-  else{cerrarPNM();}
-}
-
-// Hook: patchTouch después de cada render del cuaderno
-var _origRenderCuaderno = typeof renderCuaderno!=='undefined' ? renderCuaderno : null;
-document.addEventListener('DOMContentLoaded', function(){
-  if(typeof renderCuaderno !== 'undefined'){
-    var orig = renderCuaderno;
-    renderCuaderno = function(mat){
-      orig(mat);
-      setTimeout(patchTouch, 120);
-    };
-  }
-});
-</script>
 </body>
 </html>
