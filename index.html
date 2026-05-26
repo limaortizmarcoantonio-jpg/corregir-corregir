@@ -123,13 +123,13 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 /* Encabezados sticky horizontalmente */
 .cuaderno th{background:var(--az);color:#fff;padding:7px 6px;text-align:center;font-family:'Baloo 2',cursive;font-weight:600;white-space:nowrap;border:1px solid rgba(255,255,255,.2);position:sticky;top:0;z-index:2}
 .cuaderno th.th-n{width:28px;min-width:28px;font-size:.72rem;position:sticky;left:0;z-index:4;background:var(--az)}
-.cuaderno th.th-nom{text-align:left;min-width:175px;position:sticky;left:28px;z-index:4;background:var(--az);box-shadow:4px 0 8px rgba(0,0,0,.15)}
+.cuaderno th.th-nom{text-align:left;min-width:140px;position:sticky;left:28px;z-index:4;background:var(--az);box-shadow:4px 0 8px rgba(0,0,0,.15)}
 .cuaderno th.th-act{min-width:46px;max-width:56px;font-size:.68rem;word-break:break-word;white-space:normal;line-height:1.2;padding:5px 3px}
 .cuaderno th.th-tot{background:#0d47a1;min-width:52px;position:sticky;right:0;z-index:4;box-shadow:-3px 0 8px rgba(0,0,0,.15)}
 /* Celdas */
 .cuaderno td{padding:3px 2px;border:1px solid #e0e6ed;text-align:center;vertical-align:middle}
 .cuaderno td.td-n{color:#90a4ae;font-size:.7rem;width:28px;position:sticky;left:0;z-index:1;background:#fff}
-.cuaderno td.td-nom{text-align:left;font-weight:700;font-size:.76rem;white-space:nowrap;padding-left:7px;position:sticky;left:28px;z-index:1;background:#fff;box-shadow:4px 0 8px rgba(0,0,0,.07)}
+.cuaderno td.td-nom{text-align:left;font-weight:700;font-size:.76rem;white-space:nowrap;padding-left:7px;position:sticky;left:28px;z-index:1;background:#fff;box-shadow:4px 0 8px rgba(0,0,0,.07);min-width:140px;max-width:140px;overflow:hidden;text-overflow:ellipsis}
 .cuaderno td.td-tot{font-family:'Baloo 2',cursive;font-weight:800;color:var(--az);background:#e3f2fd !important;font-size:.82rem;position:sticky;right:0;z-index:1;border-left:2px solid #90caf9;box-shadow:-3px 0 8px rgba(0,0,0,.07)}
 .cuaderno tr:nth-child(even) td{background:#f7f9fc}
 .cuaderno tr:nth-child(even) td.td-n{background:#f7f9fc}
@@ -143,6 +143,20 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .ninp.vacia{background:#fff3e0;border-color:#ffb74d}
 .ninp.con-nota{background:#e8f5e9;border-color:#81c784}
 .celda-vacia{color:#ef9a9a;font-size:.85rem}
+
+/* ── MÓVIL: tabla cuaderno ── */
+@media(max-width:600px){
+  .cuaderno-wrap{max-height:55vh;height:55vh}
+  .cuaderno th.th-nom{min-width:110px;max-width:120px;font-size:.65rem}
+  .cuaderno td.td-nom{min-width:110px;max-width:120px;font-size:.68rem}
+  .cuaderno th.th-n{width:22px;min-width:22px}
+  .cuaderno td.td-n{width:22px}
+  .cuaderno th.th-act{min-width:40px;max-width:48px;font-size:.60rem;padding:4px 2px}
+  .ninp{width:34px;height:26px;font-size:.72rem}
+  .cuaderno{font-size:.72rem}
+  .cuaderno td.td-nom,.cuaderno th.th-nom{left:22px}
+  .cuaderno td.td-n,.cuaderno th.th-n{left:0}
+}
 
 /* Panel agregar actividad */
 .add-act-panel{background:#e3f2fd;border-radius:8px;padding:7px 10px;margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
