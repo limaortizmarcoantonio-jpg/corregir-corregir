@@ -98,7 +98,7 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .mat-btn.sel{background:var(--az);color:#fff;border-color:var(--az)}
 
 /* Tabla cuaderno - estilo registro */
-.cuaderno-outer{margin-top:6px;width:100%;overflow-x:auto}
+.cuaderno-outer{margin-top:6px}
 .cuaderno-scroll-top{overflow-x:auto;overflow-y:hidden;height:10px;margin-bottom:2px;border-radius:4px;background:#e0e0e0}
 .cuaderno-scroll-top-inner{height:1px;background:transparent}
 /* En tablet, la barra siempre visible con estilo */
@@ -108,36 +108,28 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
   .cuaderno-scroll-top::-webkit-scrollbar-track{background:#e3f2fd;border-radius:6px}
   .cuaderno-scroll-top::-webkit-scrollbar-thumb{background:#1565c0;border-radius:6px}
 }
-.cuaderno-wrap{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
+.cuaderno-wrap{overflow:auto;max-height:75vh;height:75vh;-webkit-overflow-scrolling:touch}
 @media(max-width:1024px){
   .cuaderno-wrap{
-    overflow-x:auto;
-    overflow-y:visible;
-    /* SIN altura fija: el teclado virtual ya NO aplasta la tabla */
+    max-height:50vh;
+    height:50vh;
+    overflow:auto;
   }
-  /* En tablet/móvil sin scroll vertical en wrap, quitamos sticky del thead
-     para evitar bugs de posicionamiento */
-  .cuaderno thead{position:relative;top:auto;z-index:2}
-  .cuaderno th{position:relative;top:auto}
-  /* Pero mantenemos sticky horizontal para # y Nombre */
-  .cuaderno th.th-n{position:sticky;left:0;z-index:4}
-  .cuaderno th.th-nom{position:sticky;left:28px;z-index:4}
-  .cuaderno th.th-tot{position:sticky;right:0;z-index:4}
-  .cuaderno td.td-n{position:sticky;left:0;z-index:1}
-  .cuaderno td.td-nom{position:sticky;left:28px;z-index:1}
-  .cuaderno td.td-tot{position:sticky;right:0;z-index:1}
+  .cuaderno thead{position:sticky;top:0;z-index:5}
+  .cuaderno th{position:sticky;top:0;z-index:3}
+  .cuaderno th.th-n,.cuaderno th.th-nom,.cuaderno th.th-tot{z-index:6}
 }
 .cuaderno{border-collapse:collapse;font-size:.78rem}
 /* Encabezados sticky horizontalmente */
 .cuaderno th{background:var(--az);color:#fff;padding:7px 6px;text-align:center;font-family:'Baloo 2',cursive;font-weight:600;white-space:nowrap;border:1px solid rgba(255,255,255,.2);position:sticky;top:0;z-index:2}
 .cuaderno th.th-n{width:28px;min-width:28px;font-size:.72rem;position:sticky;left:0;z-index:4;background:var(--az)}
-.cuaderno th.th-nom{text-align:left;min-width:140px;position:sticky;left:28px;z-index:4;background:var(--az);box-shadow:4px 0 8px rgba(0,0,0,.15)}
+.cuaderno th.th-nom{text-align:left;min-width:175px;position:sticky;left:28px;z-index:4;background:var(--az);box-shadow:4px 0 8px rgba(0,0,0,.15)}
 .cuaderno th.th-act{min-width:46px;max-width:56px;font-size:.68rem;word-break:break-word;white-space:normal;line-height:1.2;padding:5px 3px}
 .cuaderno th.th-tot{background:#0d47a1;min-width:52px;position:sticky;right:0;z-index:4;box-shadow:-3px 0 8px rgba(0,0,0,.15)}
 /* Celdas */
 .cuaderno td{padding:3px 2px;border:1px solid #e0e6ed;text-align:center;vertical-align:middle}
 .cuaderno td.td-n{color:#90a4ae;font-size:.7rem;width:28px;position:sticky;left:0;z-index:1;background:#fff}
-.cuaderno td.td-nom{text-align:left;font-weight:700;font-size:.76rem;white-space:nowrap;padding-left:7px;position:sticky;left:28px;z-index:1;background:#fff;box-shadow:4px 0 8px rgba(0,0,0,.07);min-width:140px;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.cuaderno td.td-nom{text-align:left;font-weight:700;font-size:.76rem;white-space:nowrap;padding-left:7px;position:sticky;left:28px;z-index:1;background:#fff;box-shadow:4px 0 8px rgba(0,0,0,.07)}
 .cuaderno td.td-tot{font-family:'Baloo 2',cursive;font-weight:800;color:var(--az);background:#e3f2fd !important;font-size:.82rem;position:sticky;right:0;z-index:1;border-left:2px solid #90caf9;box-shadow:-3px 0 8px rgba(0,0,0,.07)}
 .cuaderno tr:nth-child(even) td{background:#f7f9fc}
 .cuaderno tr:nth-child(even) td.td-n{background:#f7f9fc}
@@ -145,26 +137,12 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .cuaderno tr:hover td,.cuaderno tr:hover td.td-n,.cuaderno tr:hover td.td-nom{background:#e8f5fd}
 
 /* Input dentro de celda */
-.ninp{width:38px;height:28px;padding:2px 1px;border:1.5px solid #dde3ea;border-radius:6px;text-align:center;font-size:16px;font-family:'Nunito',sans-serif;background:#fff;transition:border .15s;-moz-appearance:textfield}
+.ninp{width:38px;height:28px;padding:2px 1px;border:1.5px solid #dde3ea;border-radius:6px;text-align:center;font-size:.75rem;font-family:'Nunito',sans-serif;background:#fff;transition:border .15s;-moz-appearance:textfield}
 .ninp::-webkit-outer-spin-button,.ninp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .ninp:focus{border-color:var(--az2);outline:none;background:#e3f2fd}
 .ninp.vacia{background:#fff3e0;border-color:#ffb74d}
 .ninp.con-nota{background:#e8f5e9;border-color:#81c784}
 .celda-vacia{color:#ef9a9a;font-size:.85rem}
-
-/* ── MÓVIL: tabla cuaderno ── */
-@media(max-width:600px){
-  .cuaderno-wrap{overflow-x:auto;overflow-y:visible}
-  .cuaderno th.th-nom{min-width:110px;max-width:120px;font-size:.65rem}
-  .cuaderno td.td-nom{min-width:110px;max-width:120px;font-size:.68rem}
-  .cuaderno th.th-n{width:22px;min-width:22px}
-  .cuaderno td.td-n{width:22px}
-  .cuaderno th.th-act{min-width:40px;max-width:48px;font-size:.60rem;padding:4px 2px}
-  .ninp{width:34px;height:26px;font-size:16px}
-  .cuaderno{font-size:.72rem}
-  .cuaderno td.td-nom,.cuaderno th.th-nom{left:22px}
-  .cuaderno td.td-n,.cuaderno th.th-n{left:0}
-}
 
 /* Panel agregar actividad */
 .add-act-panel{background:#e3f2fd;border-radius:8px;padding:7px 10px;margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -3029,7 +3007,7 @@ function renderCuaderno(mat){
       html += `<td><input type="number" class="ninp ${cls}" min="0" max="100"
         data-mat="${mat}" data-al="${al.id}" data-act="${i}"
         value="${val}" placeholder="–"
-        inputmode="numeric" oninput="this.className='ninp '+(this.value===''?'vacia':'con-nota')"
+        oninput="this.className='ninp '+(this.value===''?'vacia':'con-nota')"
         onblur="actualizarNota(this)"
         onkeydown="navegarCuaderno(event,this)"></td>`;
     });
@@ -5868,18 +5846,128 @@ showSection = function(n, btn){
   </div>
 </div>
 
+<div id="panel-nota-movil">
+  <button class="pnm-x" onclick="cerrarPNM()">✕</button>
+  <div class="pnm-tit" id="pnm-tit"></div>
+  <div class="pnm-alm" id="pnm-alm"></div>
+  <div class="pnm-row">
+    <input id="pnm-inp" type="number" min="0" max="100" inputmode="numeric" placeholder="–">
+    <button class="pnm-ok" onclick="guardarPNM()">✔ Guardar</button>
+  </div>
+  <div class="pnm-nav">
+    <button onclick="navPNM(-1)">◀ Anterior alumno</button>
+    <button onclick="navPNM(1)">Siguiente alumno ▶</button>
+  </div>
+</div>
+
 <script>
-/* ══════════════════════════════════════════════════════
-   SCROLL AL INPUT EN TABLET/MÓVIL
-   Sin alturas fijas — la página scrollea normalmente.
-   Solo centramos el input enfocado en pantalla.
-══════════════════════════════════════════════════════ */
-document.addEventListener('focusin', function(e){
-  if(!e.target.classList.contains('ninp')) return;
-  // Esperar a que el teclado virtual termine de subir
-  setTimeout(function(){
-    e.target.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
-  }, 400);
+var _pnmEl = null; // elemento td activo
+
+function esTactil(){ return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
+
+// Reemplazar inputs por celdas tocables en dispositivos táctiles
+function patchCuadernoParaTouch(){
+  if(!esTactil()) return;
+  document.querySelectorAll('.ninp').forEach(function(inp){
+    var td = inp.parentElement;
+    var span = document.createElement('span');
+    span.className = 'pnm-celda ' + (inp.value ? 'pnm-con' : 'pnm-vacia');
+    span.textContent = inp.value || '–';
+    span.dataset.mat  = inp.dataset.mat;
+    span.dataset.al   = inp.dataset.al;
+    span.dataset.act  = inp.dataset.act;
+    span.dataset.val  = inp.value;
+    span.style.cssText = 'display:inline-block;min-width:36px;height:28px;line-height:28px;padding:0 4px;border-radius:6px;text-align:center;font-size:.82rem;cursor:pointer;border:1.5px solid #dde3ea;font-weight:700;background:#fff3e0;color:#e65100';
+    span.addEventListener('click', function(){ abrirPNM(this); });
+    td.replaceChild(span, inp);
+  });
+}
+
+function abrirPNM(el){
+  _pnmEl = el;
+  document.querySelectorAll('.pnm-celda').forEach(function(c){ c.style.borderColor='#dde3ea'; });
+  el.style.borderColor = '#1565c0';
+
+  var mat  = el.dataset.mat;
+  var alId = el.dataset.al;
+  var actI = el.dataset.act;
+
+  var al   = ALUMNOS.find(function(a){ return a.id == alId; });
+  var c    = getCuadernos();
+  var acts = ((c[mat]||{}).actividades)||[];
+  var nomAct = acts[actI] ? acts[actI].nombre : ('Act. '+(Number(actI)+1));
+
+  document.getElementById('pnm-tit').textContent = '📝 ' + nomAct;
+  document.getElementById('pnm-alm').textContent = '👤 ' + (al ? al.n : alId);
+  document.getElementById('pnm-inp').value = el.dataset.val || '';
+  document.getElementById('panel-nota-movil').style.display = 'block';
+  setTimeout(function(){ document.getElementById('pnm-inp').focus(); }, 60);
+}
+
+function cerrarPNM(){
+  document.getElementById('panel-nota-movil').style.display = 'none';
+  if(_pnmEl) _pnmEl.style.borderColor = '#dde3ea';
+  _pnmEl = null;
+}
+
+function guardarPNM(){
+  if(!_pnmEl) return;
+  var val  = document.getElementById('pnm-inp').value.trim();
+  var mat  = _pnmEl.dataset.mat;
+  var alId = _pnmEl.dataset.al;
+  var actI = _pnmEl.dataset.act;
+
+  var c = getCuadernos();
+  if(!c[mat]) c[mat]={actividades:[],notas:{}};
+  var key = alId+'_'+actI;
+  if(val===''){
+    c[mat].notas[key]=null;
+  } else {
+    var hoy=new Date();
+    var fd=String(hoy.getDate()).padStart(2,'0')+'/'+String(hoy.getMonth()+1).padStart(2,'0')+'/'+hoy.getFullYear();
+    c[mat].notas[key]={nota:Number(val),fecha:fd};
+  }
+  setCuadernos(c);
+
+  _pnmEl.textContent = val||'–';
+  _pnmEl.dataset.val = val;
+  _pnmEl.style.background = val ? '#e8f5e9' : '#fff3e0';
+  _pnmEl.style.color = val ? '#2e7d32' : '#e65100';
+  _pnmEl.style.borderColor = '#dde3ea';
+
+  // Actualizar total de fila
+  var fila = _pnmEl.closest('tr');
+  if(fila){
+    var tot=0,con=0;
+    fila.querySelectorAll('.pnm-celda').forEach(function(s){
+      if(s.dataset.val){ tot+=Number(s.dataset.val); con++; }
+    });
+    var tdT = fila.querySelector('.td-tot');
+    if(tdT) tdT.textContent = con>0?tot:'–';
+  }
+  renderRanking();
+
+  // Avanzar al siguiente
+  navPNM(1);
+}
+
+function navPNM(dir){
+  if(!_pnmEl) return;
+  var actI  = _pnmEl.dataset.act;
+  var celdas = Array.from(document.querySelectorAll('.pnm-celda[data-act="'+actI+'"]'));
+  var idx   = celdas.indexOf(_pnmEl);
+  var sig   = celdas[idx+dir];
+  if(sig){ abrirPNM(sig); sig.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  else { cerrarPNM(); }
+}
+
+// Activar patch cada vez que se renderice el cuaderno
+var _pnmObs = new MutationObserver(function(){
+  if(esTactil()) setTimeout(patchCuadernoParaTouch, 80);
+});
+document.addEventListener('DOMContentLoaded', function(){
+  var wrap = document.getElementById('tabla-cuad');
+  if(wrap) _pnmObs.observe(wrap, {childList:true, subtree:false});
 });
 </script>
 </body>
