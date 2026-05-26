@@ -111,11 +111,10 @@ input:focus,select:focus{outline:none;border-color:var(--az2);background:#fff}
 .cuaderno-wrap{overflow:auto;max-height:75vh;height:75vh;-webkit-overflow-scrolling:touch}
 @media(max-width:1024px){
   .cuaderno-wrap{
-    max-height:calc(100vh - 180px);
-    height:calc(100vh - 180px);
+    max-height:50vh;
+    height:50vh;
     overflow:auto;
   }
-  /* Asegurar que el thead sticky funcione dentro del wrap */
   .cuaderno thead{position:sticky;top:0;z-index:5}
   .cuaderno th{position:sticky;top:0;z-index:3}
   .cuaderno th.th-n,.cuaderno th.th-nom,.cuaderno th.th-tot{z-index:6}
@@ -2447,6 +2446,25 @@ function initCuadernos(){
 // ═══════════════════════════════════════════════
 let matActual = null;
 
+// Ajustar altura del cuaderno cuando aparece/desaparece el teclado
+function ajustarAlturaCuaderno(){
+  const wrap = document.getElementById('tabla-cuad');
+  if(!wrap) return;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const rect = wrap.getBoundingClientRect();
+  const available = vh - rect.top - 10;
+  const minH = 200;
+  const newH = Math.max(minH, available);
+  wrap.style.height = newH + 'px';
+  wrap.style.maxHeight = newH + 'px';
+}
+
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', ajustarAlturaCuaderno);
+  window.visualViewport.addEventListener('scroll', ajustarAlturaCuaderno);
+}
+window.addEventListener('resize', ajustarAlturaCuaderno);
+
 window.addEventListener('DOMContentLoaded',()=>{
   // Mostrar pantalla de inicio con selector de bimestre
   renderBimGrid();
@@ -2940,6 +2958,7 @@ function chkPass(){
 // ═══════════════════════════════════════════════
 function selMat(mat, btn){
   toggleMatSelector(false); // colapsar al seleccionar materia
+  setTimeout(ajustarAlturaCuaderno, 200);
 
   document.querySelectorAll('.mat-btn').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
